@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+    patient-service:
+        build:
+            context: ./patient-service
+            dockerfile: Dockerfile
+        ports:
+            - "8081:8081"
+        environment:
+            SPRING_PROFILES_ACTIVE: "dev"
+            SPRING_OUTPUT_ANSI_ENABLED: ALWAYS
+
+    billing-service:
+        build:
+            context: ./billing-service
+            dockerfile: Dockerfile
+        ports:
+            - "8082:8082"
+            - "9092:9092"
+        environment:
+            SPRING_PROFILES_ACTIVE: ""
+            SPRING_OUTPUT_ANSI_ENABLED: ALWAYS
