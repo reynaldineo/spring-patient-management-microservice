@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.reynaldineo.patient_service.PatientMapper;
@@ -12,17 +14,23 @@ import com.reynaldineo.patient_service.dto.PatientResponseDTO;
 import com.reynaldineo.patient_service.exception.EmailAlreadyExistException;
 import com.reynaldineo.patient_service.exception.PatientNotFoundException;
 import com.reynaldineo.patient_service.grpc.BillingServiceGrpcClient;
+import com.reynaldineo.patient_service.kafka.KafkaProducer;
 import com.reynaldineo.patient_service.model.Patient;
 import com.reynaldineo.patient_service.repository.PatientRepository;
 
 @Service
 public class PatientService {
+    private static final Logger log = LoggerFactory.getLogger(PatientService.class);
+
+    private final KafkaProducer kafkaProducer;
     private PatientRepository patientRepository;
     private final BillingServiceGrpcClient billingServiceGrpcClient;
 
-    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient) {
+    public PatientService(PatientRepository patientRepository, BillingServiceGrpcClient billingServiceGrpcClient,
+            KafkaProducer kafkaProducer) {
         this.patientRepository = patientRepository;
         this.billingServiceGrpcClient = billingServiceGrpcClient;
+        this.kafkaProducer = kafkaProducer;
     }
 
     public List<PatientResponseDTO> getPatients() {
@@ -40,9 +48,16 @@ public class PatientService {
 
         Patient newPatient = patientRepository.save(
                 PatientMapper.toModel(patientRequestDTO));
-
         billingServiceGrpcClient.createBillingAccount(newPatient.getId().toString(), newPatient.getName(),
                 newPatient.getEmail());
+
+        log.info("About to send Kafka event for new patient with ID: {}", newPatient.getId());
+        try {
+            kafkaProducer.sendEvent(newPatient);
+            log.info("Successfully called kafkaProducer.sendEvent");
+        } catch (Exception e) {
+            log.error("Error while sending Kafka event", e);
+        }
 
         return PatientMapper.toDTO(newPatient);
     }
