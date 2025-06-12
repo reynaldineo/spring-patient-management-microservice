@@ -17,6 +17,6 @@ WORKDIR /app
 COPY --from=builder ./app/target/billing-service-0.0.1-SNAPSHOT.jar ./app.jar
 
 EXPOSE 8082
-EXPOSE 9092
+EXPOSE 9002
 
 ENTRYPOINT [ "java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "app.jar" ]

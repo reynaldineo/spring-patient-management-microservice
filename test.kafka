@@ -1,0 +1,19 @@
+CONSUMER consumer-group-id
+topic: patient
+partitions: 0
+from: 1
+
+PRODUCER keyed-message
+topic: patient
+key: mykeyq
+value: hey
+lol aksjfdsa
+
+###
+
+PRODUCER non-keyed-json-message
+topic: json-events
+{
+    "type": "my_test_event-{{random.number}}"
+}
+
