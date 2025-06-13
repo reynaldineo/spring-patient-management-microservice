@@ -27,6 +27,19 @@ services:
         depends_on:
             - kafka
 
+    analytics-service:
+        build:
+            context: ./analytics-service
+            dockerfile: Dockerfile
+        ports:
+            - "8083:8083"
+        environment:
+            SPRING_PROFILES_ACTIVE: ""
+            SPRING_OUTPUT_ANSI_ENABLED: ALWAYS
+            SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+        depends_on:
+            - kafka
+
     kafka:
         image: bitnami/kafka:latest
         environment:
