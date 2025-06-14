@@ -1,6 +1,17 @@
 version: "3.8"
 
 services:
+    api-gateway:
+        build:
+            context: ./api-gateway
+            dockerfile: Dockerfile
+        ports:
+            - "8080:8080"
+        environment:
+            SPRING_OUTPUT_ANSI_ENABLED: ALWAYS
+        depends_on:
+            - patient-service
+
     patient-service:
         build:
             context: ./patient-service
