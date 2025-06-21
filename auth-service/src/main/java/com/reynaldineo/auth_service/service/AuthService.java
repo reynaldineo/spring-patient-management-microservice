@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.reynaldineo.auth_service.dto.LoginRequestDTO;
 import com.reynaldineo.auth_service.util.JwtUtil;
 
+import io.jsonwebtoken.JwtException;
+
 @Service
 public class AuthService {
     private final UserService userService;
@@ -26,5 +28,14 @@ public class AuthService {
                 .filter(u -> passwordEncoder.matches(loginRequestDTO.getPassword(), u.getPassword()))
                 .map(u -> jwtUtil.generateToken(u.getEmail(), u.getRole()));
         return token;
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            jwtUtil.validateToken(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
     }
 }

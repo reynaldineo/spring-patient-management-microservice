@@ -9,6 +9,7 @@ services:
             - "8080:8080"
         environment:
             SPRING_OUTPUT_ANSI_ENABLED: ALWAYS
+            AUTH_SERVICE_URL: "http://auth-service:8084"
         depends_on:
             - patient-service
 
